@@ -1,7 +1,7 @@
 from ustruct import unpack as unp
 import utime
 
-# Copyright (c) 2019 David Wahlund david@dafnet.se
+# Author David Wahlund david@dafnet.se
 
 # Power Modes
 NORMAL = 0
