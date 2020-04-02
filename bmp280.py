@@ -202,11 +202,9 @@ class BMP280:
 
     def _write_bits(self, address, value, length, shift=0):
         d = self._read(address)[0]
-        print('{:08b}'.format(d))
         m = int('1' * length, 2) << shift
         d &= ~m
         d |= m & value << shift
-        print('{:08b}'.format(d))
         self._write(address, d)
 
     def _read_bits(self, address, length, shift=0):
