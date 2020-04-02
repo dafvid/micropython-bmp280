@@ -21,7 +21,7 @@ print(bmp.pressure)
 
 ## TODO
 * SPI support
-* Filters
-* Oversampling settings (half done)
-* Power modes
-* Standby setting for Normal mode
+* ~~Filters~~
+* ~~Oversampling settings (half done)~~
+* ~~Power modes~~
+* ~~Standby setting for Normal mode~~
