@@ -41,29 +41,47 @@ BMP280_IIR_FILTER_4 = const(2)
 BMP280_IIR_FILTER_8 = const(3)
 BMP280_IIR_FILTER_16 = const(4)
 
+# Oversampling setting
+BMP280_OS_ULTRALOW = const(0)
+BMP280_OS_LOW = const(1)
+BMP280_OS_STANDARD = const(2)
+BMP280_OS_HIGH = const(3)
+BMP280_OS_ULTRAHIGH = const(4)
 
-# BMP280 Temperature Registers
-BMP280_REGISTER_DIG_T1 = const(0x88)
-BMP280_REGISTER_DIG_T2 = const(0x8A)
-BMP280_REGISTER_DIG_T3 = const(0x8C)
-# BMP280 Pressure Registers
-BMP280_REGISTER_DIG_P1 = const(0x8E)
-BMP280_REGISTER_DIG_P2 = const(0x90)
-BMP280_REGISTER_DIG_P3 = const(0x92)
-BMP280_REGISTER_DIG_P4 = const(0x94)
-BMP280_REGISTER_DIG_P5 = const(0x96)
-BMP280_REGISTER_DIG_P6 = const(0x98)
-BMP280_REGISTER_DIG_P7 = const(0x9A)
-BMP280_REGISTER_DIG_P8 = const(0x9C)
-BMP280_REGISTER_DIG_P9 = const(0x9E)
+# Oversampling matrix
+# (PRESS_OS, TEMP_OS, sample time in ms)
+_BMP280_OS_MATRIX = [
+    [BMP280_PRES_OS_1, BMP280_TEMP_OS_1, 7],
+    [BMP280_PRES_OS_2, BMP280_TEMP_OS_1, 9],
+    [BMP280_PRES_OS_4, BMP280_TEMP_OS_1, 14],
+    [BMP280_PRES_OS_8, BMP280_TEMP_OS_1, 23],
+    [BMP280_PRES_OS_16, BMP280_TEMP_OS_2, 44]
+]
 
-BMP280_REGISTER_ID = const(0xD0)
-BMP280_REGISTER_RESET = const(0xE0)
-BMP280_REGISTER_STATUS = const(0xF3)
-BMP280_REGISTER_CONTROL = const(0xF4)
-BMP280_REGISTER_CONFIG = const(0xF5)  # IIR filter config
+# Use cases
+BMP280_CASE_HANDHELD_LOW = const(0)
+BMP280_CASE_HANDHELD_DYN = const(1)
+BMP280_CASE_WEATHER = const(2)
+BMP280_CASE_FLOOR = const(3)
+BMP280_CASE_DROP = const(4)
+BMP280_CASE_INDOOR = const(5)
 
-BMP280_REGISTER_DATA = const(0xF7)
+_BMP280_CASE_MATRIX = [
+    [BMP280_POWER_NORMAL, BMP280_OS_ULTRAHIGH, BMP280_IIR_FILTER_4],
+    [BMP280_POWER_NORMAL, BMP280_OS_STANDARD, BMP280_IIR_FILTER_16],
+    [BMP280_POWER_FORCED, BMP280_OS_ULTRALOW, BMP280_IIR_FILTER_OFF],
+    [BMP280_POWER_NORMAL, BMP280_OS_STANDARD, BMP280_IIR_FILTER_4],
+    [BMP280_POWER_NORMAL, BMP280_OS_LOW, BMP280_IIR_FILTER_OFF],
+    [BMP280_POWER_NORMAL, BMP280_OS_ULTRAHIGH, BMP280_IIR_FILTER_16]
+]
+
+_BMP280_REGISTER_ID = const(0xD0)
+_BMP280_REGISTER_RESET = const(0xE0)
+_BMP280_REGISTER_STATUS = const(0xF3)
+_BMP280_REGISTER_CONTROL = const(0xF4)
+_BMP280_REGISTER_CONFIG = const(0xF5)  # IIR filter config
+
+_BMP280_REGISTER_DATA = const(0xF7)
 
 
 class BMP280:
@@ -72,24 +90,24 @@ class BMP280:
         self._i2c_addr = addr
 
         self._bmp_i2c.start()
-        self.chip_id = self._read(BMP280_REGISTER_ID, 2)
+        self.chip_id = self._read(_BMP280_REGISTER_ID, 2)
 
         # read calibration data
         # < little-endian
         # H unsigned short
         # h signed short
-        self._T1 = unp('<H', self._read(BMP280_REGISTER_DIG_T1, 2))[0]
-        self._T2 = unp('<h', self._read(BMP280_REGISTER_DIG_T2, 2))[0]
-        self._T3 = unp('<h', self._read(BMP280_REGISTER_DIG_T3, 2))[0]
-        self._P1 = unp('<H', self._read(BMP280_REGISTER_DIG_P1, 2))[0]
-        self._P2 = unp('<h', self._read(BMP280_REGISTER_DIG_P2, 2))[0]
-        self._P3 = unp('<h', self._read(BMP280_REGISTER_DIG_P3, 2))[0]
-        self._P4 = unp('<h', self._read(BMP280_REGISTER_DIG_P4, 2))[0]
-        self._P5 = unp('<h', self._read(BMP280_REGISTER_DIG_P5, 2))[0]
-        self._P6 = unp('<h', self._read(BMP280_REGISTER_DIG_P6, 2))[0]
-        self._P7 = unp('<h', self._read(BMP280_REGISTER_DIG_P7, 2))[0]
-        self._P8 = unp('<h', self._read(BMP280_REGISTER_DIG_P8, 2))[0]
-        self._P9 = unp('<h', self._read(BMP280_REGISTER_DIG_P9, 2))[0]
+        self._T1 = unp('<H', self._read(0x88, 2))[0]
+        self._T2 = unp('<h', self._read(0x8A, 2))[0]
+        self._T3 = unp('<h', self._read(0x8C, 2))[0]
+        self._P1 = unp('<H', self._read(0x8E, 2))[0]
+        self._P2 = unp('<h', self._read(0x90, 2))[0]
+        self._P3 = unp('<h', self._read(0x92, 2))[0]
+        self._P4 = unp('<h', self._read(0x94, 2))[0]
+        self._P5 = unp('<h', self._read(0x96, 2))[0]
+        self._P6 = unp('<h', self._read(0x98, 2))[0]
+        self._P7 = unp('<h', self._read(0x9A, 2))[0]
+        self._P8 = unp('<h', self._read(0x9C, 2))[0]
+        self._P9 = unp('<h', self._read(0x9E, 2))[0]
 
         # output raw
         self._t_raw = 0
@@ -99,7 +117,7 @@ class BMP280:
         self._p_raw = 0
         self._p = 0
 
-        self._read_wait_ms = 100  # interval between forced measure and readout
+        self.read_wait_ms = 0  # interval between forced measure and readout
         self._new_read_ms = 200  # interval between
         self._last_read_ts = 0
 
@@ -114,7 +132,7 @@ class BMP280:
     def _gauge(self):
         # TODO limit new reads
         # read all data at once (as by spec)
-        d = self._read(BMP280_REGISTER_DATA, 6)
+        d = self._read(_BMP280_REGISTER_DATA, 6)
 
         self._p_raw = (d[0] << 12) + (d[1] << 4) + (d[2] >> 4)
         self._t_raw = (d[3] << 12) + (d[4] << 4) + (d[5] >> 4)
@@ -124,7 +142,7 @@ class BMP280:
         self._p = 0
 
     def reset(self):
-        self._write(BMP280_REGISTER_RESET, 0xB6)
+        self._write(_BMP280_REGISTER_RESET, 0xB6)
 
     def load_test_calibration(self):
         self._T1 = 27504
@@ -213,65 +231,65 @@ class BMP280:
 
     @property
     def standby(self):
-        return self._read_bits(BMP280_REGISTER_CONFIG, 3, 5)
+        return self._read_bits(_BMP280_REGISTER_CONFIG, 3, 5)
 
     @standby.setter
     def standby(self, v):
         assert 0 <= v <= 7
-        self._write_bits(BMP280_REGISTER_CONFIG, v, 3, 5)
+        self._write_bits(_BMP280_REGISTER_CONFIG, v, 3, 5)
 
     @property
     def iir(self):
-        return self._read_bits(BMP280_REGISTER_CONFIG, 3, 2)
+        return self._read_bits(_BMP280_REGISTER_CONFIG, 3, 2)
 
     @iir.setter
     def iir(self, v):
         assert 0 <= v <= 4
-        self._write_bits(BMP280_REGISTER_CONFIG, v, 3, 2)
+        self._write_bits(_BMP280_REGISTER_CONFIG, v, 3, 2)
 
     @property
     def spi3w(self):
-        return self._read_bits(BMP280_REGISTER_CONFIG, 1)
+        return self._read_bits(_BMP280_REGISTER_CONFIG, 1)
 
     @spi3w.setter
     def spi3w(self, v):
         assert v in (0, 1)
-        self._write_bits(BMP280_REGISTER_CONFIG, v, 1)
+        self._write_bits(_BMP280_REGISTER_CONFIG, v, 1)
 
     @property
     def temp_os(self):
-        return self._read_bits(BMP280_REGISTER_CONTROL, 3, 5)
+        return self._read_bits(_BMP280_REGISTER_CONTROL, 3, 5)
 
     @temp_os.setter
     def temp_os(self, v):
         assert 0 <= v <= 5
-        self._write_bits(BMP280_REGISTER_CONTROL, v, 3, 5)
+        self._write_bits(_BMP280_REGISTER_CONTROL, v, 3, 5)
 
     @property
     def press_os(self):
-        return self._read_bits(BMP280_REGISTER_CONTROL, 3, 2)
+        return self._read_bits(_BMP280_REGISTER_CONTROL, 3, 2)
 
     @press_os.setter
     def press_os(self, v):
         assert 0 <= v <= 5
-        self._write_bits(BMP280_REGISTER_CONTROL, v, 3, 2)
+        self._write_bits(_BMP280_REGISTER_CONTROL, v, 3, 2)
 
     @property
     def power_mode(self):
-        return self._read_bits(BMP280_REGISTER_CONTROL, 2)
+        return self._read_bits(_BMP280_REGISTER_CONTROL, 2)
 
     @power_mode.setter
     def power_mode(self, v):
         assert 0 <= v <= 3
-        self._write_bits(BMP280_REGISTER_CONTROL, v, 2)
+        self._write_bits(_BMP280_REGISTER_CONTROL, v, 2)
 
     @property
     def is_measuring(self):
-        return bool(self._read_bits(BMP280_REGISTER_STATUS, 1, 3))
+        return bool(self._read_bits(_BMP280_REGISTER_STATUS, 1, 3))
 
     @property
     def is_updating(self):
-        return bool(self._read_bits(BMP280_REGISTER_STATUS, 1))
+        return bool(self._read_bits(_BMP280_REGISTER_STATUS, 1))
 
     @property
     def in_normal_mode(self):
@@ -285,3 +303,15 @@ class BMP280:
 
     def sleep(self):
         self.power_mode = BMP280_POWER_SLEEP
+
+    def use_case(self, uc):
+        assert 0 <= uc <= 5
+        pm, oss, iir = _BMP280_CASE_MATRIX[uc]
+        t_os, p_os, self.read_wait_ms = _BMP280_OS_MATRIX[oss]a
+        self.iir = iir
+        self._write(_BMP280_REGISTER_CONTROL, pm + (p_os << 2))
+
+    def oversample(self, oss):
+        assert 0 <= oss <= 4
+        t_os, p_os = _BMP280_OS_MATRIX[oss]
+        self._write_bits(_BMP280_REGISTER_CONTROL, p_os + (t_os << 3), 2)
