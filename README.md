@@ -12,7 +12,7 @@ https://github.com/micropython-IMU/micropython-bmp180
 Values for different settings are defined in the following constants
 ### Use cases (See 3.4, 3.8.2)
 * BMP280_CASE_HANDHELD_LOW
-* BMP280_CASE_HANDHELD_DYN
+* BMP280_CASE_HANDHELD_DYN (*default*)
 * BMP280_CASE_WEATHER
 * BMP280_CASE_FLOOR
 * BMP280_CASE_DROP
