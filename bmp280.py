@@ -1,3 +1,4 @@
+from micropython import const
 from ustruct import unpack as unp
 
 # Author David Stenwall Wahlund (david at dafnet.se)
@@ -85,12 +86,9 @@ _BMP280_REGISTER_DATA = const(0xF7)
 
 
 class BMP280:
-    def __init__(self, i2c_bus, addr=0x76):
+    def __init__(self, i2c_bus, addr=0x76, use_case=BMP280_CASE_HANDHELD_DYN):
         self._bmp_i2c = i2c_bus
         self._i2c_addr = addr
-
-        self._bmp_i2c.start()
-        self.chip_id = self._read(_BMP280_REGISTER_ID, 2)
 
         # read calibration data
         # < little-endian
@@ -121,7 +119,8 @@ class BMP280:
         self._new_read_ms = 200  # interval between
         self._last_read_ts = 0
 
-        self.use_case(BMP280_CASE_HANDHELD_DYN)
+        if use_case is None:
+            self.use_case(use_case)
 
     def _read(self, addr, size=1):
         return self._bmp_i2c.readfrom_mem(self._i2c_addr, addr, size)
@@ -292,6 +291,10 @@ class BMP280:
     @property
     def is_updating(self):
         return bool(self._read_bits(_BMP280_REGISTER_STATUS, 1))
+
+    @property
+    def chip_id(self):
+        return self._read(_BMP280_REGISTER_ID, 2)
 
     @property
     def in_normal_mode(self):
