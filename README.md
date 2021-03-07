@@ -1,8 +1,8 @@
 # micropython-bmp280
 
-https://www.adafruit.com/product/2651
-https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html
-https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
+ - https://www.adafruit.com/product/2651
+ - https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html
+ - https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
 
 Inspired by  
 https://github.com/vitally/BMP280  
@@ -15,7 +15,7 @@ https://github.com/micropython-IMU/micropython-bmp180
 * *use_case* - Use case to start the BMP280 with. Set to None to disable measuring on boot.
 
 ## Enums
-Values for different settings are defined in the following constants
+Values for different settings are defined in the following constants. Reference to manual section in parenthesis.
 ### Use cases (See 3.4, 3.8.2)
 * BMP280_CASE_HANDHELD_LOW
 * BMP280_CASE_HANDHELD_DYN (*default*)
@@ -69,7 +69,7 @@ Values for different settings are defined in the following constants
 ## Example
 ```python
 from machine import I2C
-from bmp280 import BMP280
+from bmp280 import *
 
 bus = I2C()
 bmp = BMP280(bus)
