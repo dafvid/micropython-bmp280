@@ -119,7 +119,8 @@ class BMP280:
         self._new_read_ms = 200  # interval between
         self._last_read_ts = 0
 
-        self.use_case(use_case)
+         if use_case is not None:
+            self.use_case(use_case)self.use_case(use_case)
 
     def _read(self, addr, size=1):
         return self._bmp_i2c.readfrom_mem(self._i2c_addr, addr, size)
