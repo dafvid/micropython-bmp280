@@ -90,6 +90,8 @@ class BMP280:
         self._bmp_i2c = i2c_bus
         self._i2c_addr = addr
 
+        while self.is_updating:
+            pass
         # read calibration data
         # < little-endian
         # H unsigned short
