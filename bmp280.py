@@ -90,24 +90,11 @@ class BMP280:
         self._bmp_i2c = i2c_bus
         self._i2c_addr = addr
 
-        while self.is_updating:
-            pass
-        # read calibration data
-        # < little-endian
-        # H unsigned short
-        # h signed short
-        self._T1 = unp('<H', self._read(0x88, 2))[0]
-        self._T2 = unp('<h', self._read(0x8A, 2))[0]
-        self._T3 = unp('<h', self._read(0x8C, 2))[0]
-        self._P1 = unp('<H', self._read(0x8E, 2))[0]
-        self._P2 = unp('<h', self._read(0x90, 2))[0]
-        self._P3 = unp('<h', self._read(0x92, 2))[0]
-        self._P4 = unp('<h', self._read(0x94, 2))[0]
-        self._P5 = unp('<h', self._read(0x96, 2))[0]
-        self._P6 = unp('<h', self._read(0x98, 2))[0]
-        self._P7 = unp('<h', self._read(0x9A, 2))[0]
-        self._P8 = unp('<h', self._read(0x9C, 2))[0]
-        self._P9 = unp('<h', self._read(0x9E, 2))[0]
+        self._T1 = self._T2 = self._T3 = \
+            self._P1 = self._P2 = self._P3 = \
+            self._P4 = self._P5 = self._P6 = \
+            self._P7 = self._P8 = self._P9 = 0
+        self.calibrate()
 
         # output raw
         self._t_raw = 0
@@ -144,6 +131,29 @@ class BMP280:
         self._t = 0
         self._p = 0
 
+    def calibrate(self):
+        if self._T1 != 0:
+            return True
+        if self.is_updating:
+            return False
+        # read calibration data
+        # < little-endian
+        # H unsigned short
+        # h signed short
+        self._T1 = unp('<H', self._read(0x88, 2))[0]
+        self._T2 = unp('<h', self._read(0x8A, 2))[0]
+        self._T3 = unp('<h', self._read(0x8C, 2))[0]
+        self._P1 = unp('<H', self._read(0x8E, 2))[0]
+        self._P2 = unp('<h', self._read(0x90, 2))[0]
+        self._P3 = unp('<h', self._read(0x92, 2))[0]
+        self._P4 = unp('<h', self._read(0x94, 2))[0]
+        self._P5 = unp('<h', self._read(0x96, 2))[0]
+        self._P6 = unp('<h', self._read(0x98, 2))[0]
+        self._P7 = unp('<h', self._read(0x9A, 2))[0]
+        self._P8 = unp('<h', self._read(0x9C, 2))[0]
+        self._P9 = unp('<h', self._read(0x9E, 2))[0]
+        return True
+        
     def reset(self):
         self._write(_BMP280_REGISTER_RESET, 0xB6)
 
