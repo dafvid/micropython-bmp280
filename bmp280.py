@@ -132,10 +132,6 @@ class BMP280:
         self._p = 0
 
     def calibrate(self):
-        if self._T1 != 0:
-            return True
-        if self.is_updating:
-            return False
         # read calibration data
         # < little-endian
         # H unsigned short
@@ -152,7 +148,7 @@ class BMP280:
         self._P7 = unp('<h', self._read(0x9A, 2))[0]
         self._P8 = unp('<h', self._read(0x9C, 2))[0]
         self._P9 = unp('<h', self._read(0x9E, 2))[0]
-        return True
+        return self._T1 != 0
         
     def reset(self):
         self._write(_BMP280_REGISTER_RESET, 0xB6)
