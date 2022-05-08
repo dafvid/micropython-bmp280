@@ -312,11 +312,11 @@ class BMP280:
     def use_case(self, uc):
         assert 0 <= uc <= 5
         pm, oss, iir, sb = _BMP280_CASE_MATRIX[uc]
-        t_os, p_os, self.read_wait_ms = _BMP280_OS_MATRIX[oss]
+        p_os, t_os, self.read_wait_ms = _BMP280_OS_MATRIX[oss]
         self._write(_BMP280_REGISTER_CONFIG, (iir << 2) + (sb << 5))
         self._write(_BMP280_REGISTER_CONTROL, pm + (p_os << 2) + (t_os << 5))
 
     def oversample(self, oss):
         assert 0 <= oss <= 4
-        t_os, p_os, self.read_wait_ms = _BMP280_OS_MATRIX[oss]
+        p_os, t_os, self.read_wait_ms = _BMP280_OS_MATRIX[oss]
         self._write_bits(_BMP280_REGISTER_CONTROL, p_os + (t_os << 3), 2)
