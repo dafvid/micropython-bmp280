@@ -294,7 +294,7 @@ class BMP280:
 
     @property
     def chip_id(self):
-        return self._read(_BMP280_REGISTER_ID, 2)
+        return self._read(_BMP280_REGISTER_ID, 1)
 
     @property
     def in_normal_mode(self):
