@@ -86,9 +86,11 @@ _BMP280_REGISTER_DATA = const(0xF7)
 
 
 class BMP280:
-    def __init__(self, i2c_bus, addr=0x76, use_case=BMP280_CASE_HANDHELD_DYN):
-        self._bmp_i2c = i2c_bus
-        self._i2c_addr = addr
+    # when 'bus' is an I2C object, 'addr_cs' is I2C address
+    # when 'bus' is an SPI object, 'addr_cs' is Pin object of the CS pin
+    def __init__(self, bus, addr_cs=0x76, use_case=BMP280_CASE_HANDHELD_DYN):
+        self._bmp_bus = bus
+        self._addr_cs = addr_cs
 
         # read calibration data
         # < little-endian
@@ -123,12 +125,25 @@ class BMP280:
             self.use_case(use_case)
 
     def _read(self, addr, size=1):
-        return self._bmp_i2c.readfrom_mem(self._i2c_addr, addr, size)
+        if hasattr(self._bmp_bus, 'readfrom_mem'):
+            return self._bmp_bus.readfrom_mem(self._addr_cs, addr, size)
+        else:
+            self._addr_cs(0)
+            self._bmp_bus.write(bytearray([addr]))
+            dat = self._bmp_bus.read(size)
+            self._addr_cs(1)
+            return dat
 
     def _write(self, addr, b_arr):
         if not type(b_arr) is bytearray:
             b_arr = bytearray([b_arr])
-        return self._bmp_i2c.writeto_mem(self._i2c_addr, addr, b_arr)
+        if hasattr(self._bmp_bus, 'writeto_mem'):
+            return self._bmp_bus.writeto_mem(self._addr_cs, addr, b_arr)
+        else:
+            self._addr_cs(0)
+            ret = self._bmp_bus.write(bytearray([addr & 0x7f]) + b_arr)
+            self._addr_cs(1)
+            return ret
 
     def _gauge(self):
         # TODO limit new reads

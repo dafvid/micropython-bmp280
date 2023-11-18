@@ -9,9 +9,9 @@ https://github.com/vitally/BMP280
 https://github.com/micropython-IMU/micropython-bmp180
 
 ## Constructor
-**BMP280(i2c_bus, addr=0x76, use_case=BMP280_CASE_HANDHELD_DYN)**
-* *i2c_bus* - the I2C bus to use
-* *addr* - I2C address of the BMP280 (always the same)
+**BMP280(bus, addr_cs=0x76, use_case=BMP280_CASE_HANDHELD_DYN)**
+* *bus* - the I2C/SPI bus to use
+* *addr_cs* - when I2C is used: I2C address of the BMP280 (always the same), when SPI is used: CS pin
 * *use_case* - Use case to start the BMP280 with. Set to None to disable measuring on boot.
 
 ## Enums
